@@ -1,0 +1,1 @@
+# Switzerland-Energy-Map-Consumption-by-Property
