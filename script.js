@@ -122,4 +122,4 @@ function loadGeoJSON(layer, url) {
 
 // Load GeoJSON file
 addGeoJSONWithRandomCharts("Data/Building.geojson"); // Replace with your GeoJSON file path
-//loadGeoJSON(geojsonLayer1, "Data/Boundary.geojson"); // Replace with your first file path
+//loadGeoJSON(geojsonLayer1, "Data/Boundary.geojson");
