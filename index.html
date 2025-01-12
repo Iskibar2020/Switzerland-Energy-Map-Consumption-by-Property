@@ -14,6 +14,39 @@
 
 <body>
     <div id="sidebar">
+        <div>
+            <label for="energyconSlider">
+                Energy Consumption:
+                <span id="energyconMin">0</span> -
+                <span id="energyconMax">100</span>
+                <br>
+                (Current: <span id="energyconValue">50</span>)
+            </label>
+            <input type="range" id="energyconSlider" min="0" max="100" value="50">
+        </div>
+
+        <div>
+            <label for="currentenSlider">
+                Current Energy:
+                <span id="currentenMin">0</span> -
+                <span id="currentenMax">100</span>
+                <br>
+                (Current: <span id="currentenValue">50</span>)
+            </label>
+            <input type="range" id="currentenSlider" min="0" max="100" value="50">
+        </div>
+
+        <div>
+            <label for="potentialSlider">
+                Potential:
+                <span id="potentialMin">0</span> -
+                <span id="potentialMax">100</span>
+                <br>
+                (Current: <span id="potentialValue">50</span>)
+            </label>
+            <input type="range" id="potentialSlider" min="0" max="100" value="50">
+        </div>
+
     </div>
 
     <div id="map"></div>
