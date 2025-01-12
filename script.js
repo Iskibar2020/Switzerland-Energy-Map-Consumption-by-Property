@@ -1,5 +1,5 @@
 // Initialize the map
-var map = L.map("map").setView([47.1635, 7.2904], 16);
+var map = L.map("map").setView([47.1635, 7.2904], 14);
 var geojsonLayer1;
 var originalGeoJSONData;
 
@@ -12,17 +12,23 @@ L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
 // Function to set up sliders dynamically based on min and max values
 function setupSliders(minMaxValues) {
   ["Energy Con", "Current En", "Potential"].forEach((key) => {
-    const min = minMaxValues[key].min;
-    const max = minMaxValues[key].max;
+    const min = Math.round(minMaxValues[key].min);
+    const max = Math.round(minMaxValues[key].max);
     const sliderId = `${key.replace(" ", "").toLowerCase()}Slider`;
+    const minId = `${key.replace(" ", "").toLowerCase()}Min`;
+    const maxId = `${key.replace(" ", "").toLowerCase()}Max`;
     const valueId = `${key.replace(" ", "").toLowerCase()}Value`;
 
     const slider = document.getElementById(sliderId);
+    const minLabel = document.getElementById(minId);
+    const maxLabel = document.getElementById(maxId);
     const valueLabel = document.getElementById(valueId);
 
     slider.min = min;
     slider.max = max;
     slider.value = max; // Default to max
+    minLabel.textContent = min;
+    maxLabel.textContent = max;
     valueLabel.textContent = max;
   });
 }
@@ -51,15 +57,15 @@ function addGeoJSONWithRandomCharts(data) {
 
       pieChart.on("click", function () {
         google.charts.load("current", { packages: ["corechart"] });
-        console.log(properties["Building N"]);
 
         const popupContent = `
           <div>
             <table style="width: 100%; border-collapse: collapse;">
               <tr>
                 <td style="width: 40%; vertical-align: top;">
-                  <p><strong>Building Name:</strong> ${properties["Building N"]}</p>
-                  <p><strong>Building Level:</strong> ${properties["Building L"]}</p>
+                  <p><strong>Building Name:</strong> ${properties["Building_N"]}</p>
+                  <p><strong>Building Type:</strong> ${properties["Type"]}</p>
+                  <p><strong>Building Level:</strong> ${properties["Building_L"]}</p>
                   <p><strong>Address:</strong> ${properties["Address"]}</p>
                   <p><strong>Energy Consumption:</strong> ${properties["Energy Con"]}</p>
                   <p><strong>Current Energy:</strong> ${properties["Current En"]}</p>
@@ -113,12 +119,11 @@ function addGeoJSONWithRandomCharts(data) {
 }
 
 // Load initial GeoJSON data and calculate min/max values
-fetch("Data/Building.geojson")
+fetch("Data/Building1.geojson")
   .then((response) => response.json())
   .then((data) => {
     originalGeoJSONData = data;
 
-    // Calculate min and max values for the sliders
     const minMaxValues = {
       "Energy Con": { min: Infinity, max: -Infinity },
       "Current En": { min: Infinity, max: -Infinity },
@@ -133,10 +138,7 @@ fetch("Data/Building.geojson")
       });
     });
 
-    // Set up sliders with calculated values
     setupSliders(minMaxValues);
-
-    // Add the GeoJSON data to the map with pie charts
     addGeoJSONWithRandomCharts(data);
   })
   .catch((err) => console.error("Error loading GeoJSON:", err));
@@ -147,13 +149,18 @@ function filterGeoJSON() {
   var currentEnThreshold = document.getElementById("currentenSlider").value;
   var potentialThreshold = document.getElementById("potentialSlider").value;
 
+  var selectedTypes = Array.from(
+    document.querySelectorAll('#typeFilter input[type="checkbox"]:checked')
+  ).map((input) => input.value);
+
   originalGeoJSONData.features.forEach((feature) => {
     const { layer, pieChart, properties } = feature;
 
     if (
       properties["Energy Con"] <= energyConThreshold &&
       properties["Current En"] <= currentEnThreshold &&
-      properties["Potential"] <= potentialThreshold
+      properties["Potential"] <= potentialThreshold &&
+      selectedTypes.includes(properties["Type"])
     ) {
       if (!map.hasLayer(layer)) {
         map.addLayer(layer);
@@ -172,29 +179,6 @@ function filterGeoJSON() {
   });
 }
 
-function setupSliders(minMaxValues) {
-  ["Energy Con", "Current En", "Potential"].forEach((key) => {
-    const min = Math.round(minMaxValues[key].min);
-    const max = Math.round(minMaxValues[key].max);
-    const sliderId = `${key.replace(" ", "").toLowerCase()}Slider`;
-    const minId = `${key.replace(" ", "").toLowerCase()}Min`;
-    const maxId = `${key.replace(" ", "").toLowerCase()}Max`;
-    const valueId = `${key.replace(" ", "").toLowerCase()}Value`;
-
-    const slider = document.getElementById(sliderId);
-    const minLabel = document.getElementById(minId);
-    const maxLabel = document.getElementById(maxId);
-    const valueLabel = document.getElementById(valueId);
-
-    slider.min = min;
-    slider.max = max;
-    slider.value = max; // Default to max
-    minLabel.textContent = min;
-    maxLabel.textContent = max;
-    valueLabel.textContent = max;
-  });
-}
-
 // Add event listeners to sliders
 ["energycon", "currenten", "potential"].forEach((id) => {
   document.getElementById(`${id}Slider`).addEventListener("input", function () {
@@ -202,3 +186,10 @@ function setupSliders(minMaxValues) {
     filterGeoJSON();
   });
 });
+
+// Add event listeners to type filter checkboxes
+document
+  .querySelectorAll('#typeFilter input[type="checkbox"]')
+  .forEach((checkbox) => {
+    checkbox.addEventListener("change", filterGeoJSON);
+  });

@@ -1,5 +1,5 @@
 const cacheName = "geojson-cache-v1";
-const filesToCache = ["Data/Building.geojson", "Data/Boundary.geojson"];
+const filesToCache = ["Data/Building1.geojson", "Data/Boundary.geojson"];
 
 self.addEventListener("install", (event) => {
   event.waitUntil(
